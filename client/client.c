@@ -1,23 +1,22 @@
-// client/client.c
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "include/client.h"
-#include <unistd.h>         // for close()
-#include <sys/socket.h>     // for socket(), connect(), send()
-#include <netinet/in.h>     // for sockaddr_in, htons()
-#include <arpa/inet.h>      // for inet_pton()
 
 void clear_screen() {
-    printf("\033[2J\033[1;1H");  // ANSI escape code to clear screen
+    printf("\033[2J\033[1;1H");
 }
 
 void print_banner() {
-    printf("\033[1;36m");  // Cyan bold
+    printf("\033[1;36m");
     printf("=====================================\n");
     printf("     🛠️  Workshop Job Client CLI     \n");
     printf("=====================================\n");
-    printf("\033[0m"); // Reset color
+    printf("\033[0m");
 }
 
 void get_job_input(Job *job) {
@@ -32,17 +31,16 @@ void get_job_input(Job *job) {
         printf("Enter priority (1–5): ");
         scanf("%d", &job->priority);
         if (job->priority < 1 || job->priority > 5)
-            printf("❌ Invalid priority. Please enter a number between 1 and 5.\n");
+            printf("❌ Invalid priority. Please enter 1–5.\n");
     } while (job->priority < 1 || job->priority > 5);
 
     do {
-        printf("Enter job duration (in seconds): ");
+        printf("Enter job duration (seconds): ");
         scanf("%d", &job->duration);
         if (job->duration <= 0)
-            printf("❌ Duration must be a positive number.\n");
+            printf("❌ Duration must be positive.\n");
     } while (job->duration <= 0);
 }
-
 
 void send_job_to_server(Job *job) {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -63,7 +61,7 @@ void send_job_to_server(Job *job) {
 
     int n = recv(sock, buffer, sizeof(buffer) - 1, 0);
     buffer[n] = '\0';
-    printf("📨 Server Response: \033[1;32m%s\033[0m\n", buffer); // green
+    printf("📨 Server Response: \033[1;32m%s\033[0m\n", buffer);
 
     close(sock);
 }
@@ -73,7 +71,7 @@ int main() {
     clear_screen();
     get_job_input(&job);
 
-    printf("\n✅ Job details captured successfully:\n");
+    printf("\n✅ Job details captured:\n");
     printf("Client Name : %s\n", job.client_name);
     printf("Job Type    : %s\n", job.job_type);
     printf("Priority    : %d\n", job.priority);
