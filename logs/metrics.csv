@@ -1,0 +1,6 @@
+timestamp,job_id,client,job_type,priority,duration,technician,wait_s,exec_s,cost_rupees,cpu_user_s,cpu_sys_s
+1752012988,1,Alice,weld,2,10,2,0,10.00,110.00,0.00,0.00
+1752012994,3,Charlie,drill,1,14,1,0,14.00,107.80,0.00,0.00
+1752012995,2,Bob,paint,5,16,3,0,16.00,101.20,0.00,0.00
+1752013003,4,David,cut,3,15,2,7,15.00,93.50,0.00,0.00
+1752013011,5,Eva,lathe,4,17,1,12,17.00,136.40,0.00,0.00

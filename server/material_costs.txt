@@ -1,0 +1,5 @@
+weld 80.0
+paint 60.0
+drill 70.0
+cut 55.0
+lathe 90.0

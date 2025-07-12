@@ -2,46 +2,16 @@
 
 echo "📦 Auto-sending 5 test jobs..."
 
-./client <<EOF
-Alice
-weld
-2
-10
-EOF
+run_job() {
+  echo -e "$1\n$2\n$3\n$4" | ./client.exe
+}
 
+run_job Alice weld    2 10
 sleep 1
-
-./client <<EOF
-Bob
-paint
-5
-6
-EOF
-
+run_job Bob   paint   5 16
 sleep 1
-
-./client <<EOF
-Charlie
-drill
-1
-4
-EOF
-
+run_job Charlie drill 1 14
 sleep 1
-
-./client <<EOF
-David
-cut
-3
-5
-EOF
-
+run_job David cut     3 15
 sleep 1
-
-./client <<EOF
-Eva
-lathe
-4
-7
-EOF
-
+run_job Eva   lathe   4 17

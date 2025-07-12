@@ -1,3 +1,4 @@
+/* client/client.c  –  Workshop Job Client CLI */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,13 +6,20 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "include/client.h"
 
-void clear_screen() {
+#include "jobs.h"      /* ← shared struct */
+#include "client.h"
+
+#define SERVER_IP   "127.0.0.1"
+#define SERVER_PORT 8080
+
+void clear_screen(void)
+{
     printf("\033[2J\033[1;1H");
 }
 
-void print_banner() {
+void print_banner(void)
+{
     printf("\033[1;36m");
     printf("=====================================\n");
     printf("     🛠️  Workshop Job Client CLI     \n");
@@ -19,7 +27,8 @@ void print_banner() {
     printf("\033[0m");
 }
 
-void get_job_input(Job *job) {
+void get_job_input(Job *job)
+{
     print_banner();
     printf("Enter your name: ");
     scanf(" %63[^\n]", job->client_name);
@@ -40,34 +49,43 @@ void get_job_input(Job *job) {
         if (job->duration <= 0)
             printf("❌ Duration must be positive.\n");
     } while (job->duration <= 0);
+
+    /* leave job_id & arrival_time zeroed – the server will fill them */
+    job->job_id      = 0;
 }
 
-void send_job_to_server(Job *job) {
+/* ─── networking ───────────────────────────────────── */
+static void send_job_to_server(const Job *job)
+{
     int sock = socket(AF_INET, SOCK_STREAM, 0);
-    struct sockaddr_in serv_addr;
-    char buffer[128];
+    if (sock < 0) { perror("socket"); exit(EXIT_FAILURE); }
 
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(8080);
-    inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr);
+    struct sockaddr_in serv = {
+        .sin_family = AF_INET,
+        .sin_port   = htons(SERVER_PORT)
+    };
+    inet_pton(AF_INET, SERVER_IP, &serv.sin_addr);
 
-    if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        perror("Connection Failed");
-        exit(1);
+    if (connect(sock, (struct sockaddr *)&serv, sizeof(serv)) < 0) {
+        perror("connect"); exit(EXIT_FAILURE);
     }
 
-    send(sock, job, sizeof(Job), 0);
-    printf("\n📤 Job sent to server...\n");
+    if (send(sock, job, sizeof(Job), 0) != sizeof(Job)) {
+        perror("send"); close(sock); exit(EXIT_FAILURE);
+    }
+    printf("\n📤 Job sent to server …\n");
 
-    int n = recv(sock, buffer, sizeof(buffer) - 1, 0);
-    buffer[n] = '\0';
-    printf("📨 Server Response: \033[1;32m%s\033[0m\n", buffer);
+    char resp[128] = {0};
+    ssize_t n = recv(sock, resp, sizeof(resp) - 1, 0);
+    if (n > 0) printf("📨 Server response: \033[1;32m%s\033[0m\n", resp);
 
     close(sock);
 }
 
-int main() {
-    Job job;
+int main(void)
+{
+    Job job = {0};
+
     clear_screen();
     get_job_input(&job);
 
@@ -75,7 +93,7 @@ int main() {
     printf("Client Name : %s\n", job.client_name);
     printf("Job Type    : %s\n", job.job_type);
     printf("Priority    : %d\n", job.priority);
-    printf("Duration    : %d sec\n", job.duration);
+    printf("Duration    : %d s\n", job.duration);
 
     send_job_to_server(&job);
     return 0;
