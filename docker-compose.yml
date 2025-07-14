@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: server
+    ports:
+      - "9090:8080"
+    volumes:
+      - ./logs:/app/logs
+    cap_add:
+      - SYS_ADMIN  # required for perf
+    tty: true
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    depends_on:
+      - server
+    environment:
+      - SERVER_HOST=server
+    command: ["sh", "-c", "until nc -z server 8080; do echo '⏳ Waiting for server...'; sleep 1; done; sleep 2; ./client/test_jobs.sh"]
+    stdin_open: true
+    tty: true
+

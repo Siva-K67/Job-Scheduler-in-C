@@ -1,0 +1,17 @@
+FROM gcc:13 AS build
+COPY . .
+RUN make server.exe
+
+FROM ubuntu:22.04 AS runner
+
+RUN apt-get update && \
+    apt-get install -y stress-ng linux-tools-6.8.0-60-generic && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /server.exe ./server.exe
+COPY --from=build /server/material_costs.txt ./server/material_costs.txt
+COPY --from=build /include ./include
+COPY --from=build /server ./server
+COPY --from=build /logs ./logs
+
+CMD ["bash", "-c", "./server.exe"]

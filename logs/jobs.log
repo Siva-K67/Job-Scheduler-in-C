@@ -1,5 +1,0 @@
-[1752012988] Tech 2 finished job 1 for Alice            | weld | pri 2 | dur 10s | cost ₹110.00 | wait 0s | run 10s
-[1752012994] Tech 1 finished job 3 for Charlie          | drill | pri 1 | dur 14s | cost ₹107.80 | wait 0s | run 14s
-[1752012995] Tech 3 finished job 2 for Bob              | paint | pri 5 | dur 16s | cost ₹101.20 | wait 0s | run 16s
-[1752013003] Tech 2 finished job 4 for David            | cut | pri 3 | dur 15s | cost ₹93.50 | wait 7s | run 15s
-[1752013011] Tech 1 finished job 5 for Eva              | lathe | pri 4 | dur 17s | cost ₹136.40 | wait 12s | run 17s

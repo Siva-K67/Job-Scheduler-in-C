@@ -1,10 +1,14 @@
 #!/bin/bash
 
 echo "📦 Auto-sending 5 test jobs..."
+sleep 5
+
+export SERVER_HOST=server
 
 run_job() {
   echo -e "$1\n$2\n$3\n$4" | ./client.exe
 }
+
 
 run_job Alice weld    2 10
 sleep 1

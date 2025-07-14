@@ -1,0 +1,20 @@
+FROM gcc:13 AS build
+COPY . .
+RUN make client.exe
+
+FROM debian:bookworm-slim
+
+RUN apt-get update && apt-get install -y netcat-openbsd && rm -rf /var/lib/apt/lists/*
+
+COPY --from=build /client.exe ./client.exe
+COPY --from=build /client/test_jobs.sh ./client/test_jobs.sh
+COPY --from=build /include ./include
+
+ENV SERVER_HOST=server
+
+CMD ["sh", "-c", "\
+  echo '⏳ Waiting for server to fully initialize...'; \
+  until echo > /dev/tcp/server/8080 2>/dev/null; do sleep 1; done; \
+  echo '✅ TCP connection established! Waiting 2 more seconds...'; \
+  sleep 5; \
+  sh client/test_jobs.sh"]

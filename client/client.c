@@ -6,12 +6,21 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-
+#include <netdb.h>
 #include "jobs.h"      /* ← shared struct */
 #include "client.h"
 
-#define SERVER_IP   "127.0.0.1"
+char SERVER_IP[64] = "server";
 #define SERVER_PORT 8080
+
+void initialize_server_ip() {
+    const char* env_ip = getenv("SERVER_HOST");
+    if (env_ip)
+        strncpy(SERVER_IP, env_ip, sizeof(SERVER_IP) - 1);
+    else
+        strcpy(SERVER_IP, "127.0.0.1");  // ← default to localhost
+}
+
 
 void clear_screen(void)
 {
@@ -64,7 +73,14 @@ static void send_job_to_server(const Job *job)
         .sin_family = AF_INET,
         .sin_port   = htons(SERVER_PORT)
     };
-    inet_pton(AF_INET, SERVER_IP, &serv.sin_addr);
+    
+    struct hostent *he = gethostbyname(SERVER_IP);
+    if (!he) {
+        herror("gethostbyname");
+        exit(EXIT_FAILURE);
+    }
+    memcpy(&serv.sin_addr, he->h_addr_list[0], he->h_length);
+
 
     if (connect(sock, (struct sockaddr *)&serv, sizeof(serv)) < 0) {
         perror("connect"); exit(EXIT_FAILURE);
@@ -85,7 +101,7 @@ static void send_job_to_server(const Job *job)
 int main(void)
 {
     Job job = {0};
-
+    initialize_server_ip();
     clear_screen();
     get_job_input(&job);
 
