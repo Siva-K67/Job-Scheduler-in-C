@@ -13,7 +13,6 @@ A basic client-server job scheduling system built in C using POSIX threads and s
 - C (Linux)
 - POSIX Threads
 - Sockets
-- Docker
 - stress-ng
 - perf
 
